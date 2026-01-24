@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     private Button trueButton;
     private Button falseButton;
 
+    private boolean correctAnswer = true; // Canberra is capital of Australia
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,20 +31,27 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
-        // CONNECT XML TO JAVA MECHANICS
+        // CONNECT XML VIEWS
         questionTextView = findViewById(R.id.question_text_view);
         trueButton = findViewById(R.id.true_button);
         falseButton = findViewById(R.id.false_button);
 
         // TRUE BUTTON
-        trueButton.setOnClickListener(v ->
-                Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
-        );
+        trueButton.setOnClickListener(v -> checkAnswer(true));
 
         // FALSE BUTTON
-        falseButton.setOnClickListener(v ->
-                Toast.makeText(this, "Wrong!", Toast.LENGTH_SHORT).show()
-        );
+        falseButton.setOnClickListener(v -> checkAnswer(false));
+    }
+
+    private void checkAnswer(boolean userAnswer) {
+        int toastMessage;
+
+        if (userAnswer == correctAnswer) {
+            toastMessage = R.string.correct_toast;
+        } else {
+            toastMessage = R.string.incorrect_toast;
+        }
+
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
     }
 }
