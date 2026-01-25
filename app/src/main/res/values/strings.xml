@@ -2,6 +2,9 @@
     <string name="app_name">GeoQuiz</string>
 
     <string name="question_australia"> Canberra is the Capital of Australia</string>
+    <string name="question_oceans">The Pacific Ocean is larger than Atlantic Ocean.</string>
+    <string name="question_mideast">The Middle East is in South Africa.</string>
+    <string name="question_africa">Africa has the most countries.</string>
 
     <string name= "true_button">True</string>
     <string name= "false_button">False</string>

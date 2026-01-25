@@ -13,11 +13,20 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView questionTextView;
-    private Button trueButton;
-    private Button falseButton;
+    private TextView question_text_view;
+    private Button true_button;
+    private Button false_button;
 
-    private boolean correctAnswer = true; // Canberra is capital of Australia
+
+    private Question[] questionBank = new Question[]{
+            new Question(R.string.question_australia, true),
+            new Question(R.string.question_oceans, true),
+            new Question(R.string.question_mideast, false),
+            new Question(R.string.question_africa, true)
+    };
+
+    private int currentIndex = 0;
+    private Button next_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,26 +41,40 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // CONNECT XML VIEWS
-        questionTextView = findViewById(R.id.question_text_view);
-        trueButton = findViewById(R.id.true_button);
-        falseButton = findViewById(R.id.false_button);
+        question_text_view = findViewById(R.id.question_text_view);
+        true_button = findViewById(R.id.true_button);
+        false_button = findViewById(R.id.false_button);
 
         // TRUE BUTTON
-        trueButton.setOnClickListener(v -> checkAnswer(true));
+        true_button.setOnClickListener(v -> checkAnswer(true));
 
         // FALSE BUTTON
-        falseButton.setOnClickListener(v -> checkAnswer(false));
+        false_button.setOnClickListener(v -> checkAnswer(false));
+
+        updateQuestion();
+
+        next_button = findViewById(R.id.next_button);
+        next_button.setOnClickListener(v -> {
+            currentIndex = (currentIndex + 1) % questionBank.length;
+            updateQuestion();
+        });
+    }
+
+    private void updateQuestion(){
+        int  questionResId = questionBank[currentIndex].getTextResId();
+        question_text_view.setText(questionResId);
     }
 
     private void checkAnswer(boolean userAnswer) {
-        int toastMessage;
+        boolean correctAnswer =
+                questionBank[currentIndex].isAnswerTrue();
 
-        if (userAnswer == correctAnswer) {
-            toastMessage = R.string.correct_toast;
-        } else {
-            toastMessage = R.string.incorrect_toast;
-        }
+        int toastMessage = (userAnswer == correctAnswer)
+                ? R.string.correct_toast
+                : R.string.incorrect_toast;
 
         Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
     }
+
+
 }
