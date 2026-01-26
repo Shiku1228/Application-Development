@@ -19,16 +19,29 @@
         app:layout_constraintTop_toTopOf="parent" />-->
 
     <TextView
+        android:id="@+id/score_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:padding="16dp"
+        android:text="Score: 0/4"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
         android:id="@+id/question_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="236dp"
+        android:layout_marginTop="72dp"
+        android:fontFamily="@font/aiden_font"
         android:padding="24dp"
         android:text="@string/question_australia"
-        android:textColor="#FFFFFF"
         android:textAlignment="center"
+        android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:fontFamily="@font/aiden_font"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

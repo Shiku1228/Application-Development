@@ -27,12 +27,30 @@ public class MainActivity extends AppCompatActivity {
 
     private int currentIndex = 0;
     private Button next_button;
+    private boolean answered = false;
+
+    //+++++++++++++++++++++++++++++++++++++++++++++
+
+    private static final String KEY_INDEX = "currentQuestionIndex";
+    private static final String KEY_ANSWERED = "answered";
+
+    private int score = 0;
+
+    private static final String KEY_SCORE = "score";
+    private TextView score_text_view;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState != null){
+            currentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            answered  = savedInstanceState.getBoolean(KEY_ANSWERED, false);
+            score = savedInstanceState.getInt(KEY_SCORE, 0);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -53,27 +71,85 @@ public class MainActivity extends AppCompatActivity {
 
         updateQuestion();
 
+        if (answered) {
+            true_button.setEnabled(false);
+            false_button.setEnabled(false);
+        }
+
         next_button = findViewById(R.id.next_button);
         next_button.setOnClickListener(v -> {
+            if(currentIndex == questionBank.length - 1){
+                Toast.makeText(
+                        this,
+                        "Final Score: " + score + "/" + questionBank.length,
+                        Toast.LENGTH_LONG
+                ).show();
+
+                score = 0; // reset
+            }
             currentIndex = (currentIndex + 1) % questionBank.length;
+            answered = false;
+
+            true_button.setEnabled(true);
+            false_button.setEnabled(true);
+
             updateQuestion();
+            updateScore();
         });
+
+        score_text_view = findViewById(R.id.score_text_view);
+        updateScore();
+
+    }
+
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(KEY_INDEX, currentIndex);
+        outState.putBoolean(KEY_ANSWERED, answered);
+        outState.putInt(KEY_SCORE, score);
     }
 
     private void updateQuestion(){
         int  questionResId = questionBank[currentIndex].getTextResId();
         question_text_view.setText(questionResId);
+        
+        if(answered){
+            true_button.setEnabled(false);
+            false_button.setEnabled(false);
+        }
     }
 
     private void checkAnswer(boolean userAnswer) {
+
+        if (answered) return;
+
         boolean correctAnswer =
                 questionBank[currentIndex].isAnswerTrue();
 
-        int toastMessage = (userAnswer == correctAnswer)
-                ? R.string.correct_toast
-                : R.string.incorrect_toast;
+        int toastMessage;
+
+        if(userAnswer == correctAnswer){
+            toastMessage = R.string.correct_toast;
+            score++;
+        } else {
+            toastMessage = R.string.incorrect_toast;
+        }
 
         Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+
+        //disable buttons after answering.
+        true_button.setEnabled(false);
+        false_button.setEnabled(false);
+        answered = true;
+
+        updateScore();
+    }
+
+    private void updateScore(){
+        score_text_view.setText(
+          "Score: " + score + " /" + questionBank.length
+        );
     }
 
 
