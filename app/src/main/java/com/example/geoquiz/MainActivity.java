@@ -27,7 +27,11 @@ public class MainActivity extends AppCompatActivity {
 
     private int currentIndex = 0;
     private Button next_button;
-    private boolean answered = false;
+
+    private boolean [] answered;
+    private int answeredCount;
+
+
 
     //+++++++++++++++++++++++++++++++++++++++++++++
 
@@ -48,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState != null){
             currentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
-            answered  = savedInstanceState.getBoolean(KEY_ANSWERED, false);
             score = savedInstanceState.getInt(KEY_SCORE, 0);
         }
 
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         updateQuestion();
 
-        if (answered) {
+        if (answered[currentIndex]) {
             true_button.setEnabled(false);
             false_button.setEnabled(false);
         }
@@ -88,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 score = 0; // reset
             }
             currentIndex = (currentIndex + 1) % questionBank.length;
-            answered = false;
 
             true_button.setEnabled(true);
             false_button.setEnabled(true);
@@ -106,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
         outState.putInt(KEY_INDEX, currentIndex);
-        outState.putBoolean(KEY_ANSWERED, answered);
+        outState.putBooleanArray(KEY_ANSWERED, answered);
+        outState.putInt("answeredCount", answeredCount);
         outState.putInt(KEY_SCORE, score);
     }
 
@@ -114,36 +117,36 @@ public class MainActivity extends AppCompatActivity {
         int  questionResId = questionBank[currentIndex].getTextResId();
         question_text_view.setText(questionResId);
         
-        if(answered){
-            true_button.setEnabled(false);
-            false_button.setEnabled(false);
-        }
+        true_button.setEnabled(!answered[currentIndex]);
+        false_button.setEnabled(!answered[currentIndex]);
     }
 
     private void checkAnswer(boolean userAnswer) {
 
-        if (answered) return;
+        if (answered[currentIndex]) return;
 
         boolean correctAnswer =
                 questionBank[currentIndex].isAnswerTrue();
 
-        int toastMessage;
-
         if(userAnswer == correctAnswer){
-            toastMessage = R.string.correct_toast;
             score++;
+            Toast.makeText(this, R.string.correct_toast, Toast.LENGTH_SHORT).show();
         } else {
-            toastMessage = R.string.incorrect_toast;
+            Toast.makeText(this, R.string.incorrect_toast, Toast.LENGTH_SHORT).show();
         }
 
-        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+        answered[currentIndex] = true;
+        answeredCount++;
 
         //disable buttons after answering.
         true_button.setEnabled(false);
         false_button.setEnabled(false);
-        answered = true;
 
         updateScore();
+
+        if(answeredCount == questionBank.length){
+            showFinalScore();
+        }
     }
 
     private void updateScore(){
@@ -152,5 +155,14 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    private void showFinalScore() {
+        int percentage = (int) ((score / (float) questionBank.length) * 100);
 
+        Toast.makeText(
+                this,
+                "Final Score: " + score + "/" + questionBank.length +
+                        " (" + percentage + "%)",
+                Toast.LENGTH_LONG
+        ).show();
+    }
 }
