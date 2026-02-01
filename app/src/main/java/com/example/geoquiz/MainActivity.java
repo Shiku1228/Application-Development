@@ -2,6 +2,7 @@ package com.example.geoquiz;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private int currentIndex = 0;
-    private Button next_button;
+    private ImageButton next_button;
+    private ImageButton prev_button;
 
     private boolean [] answered;
     private int answeredCount;
@@ -53,6 +55,15 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null){
             currentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
             score = savedInstanceState.getInt(KEY_SCORE, 0);
+            answeredCount = savedInstanceState.getInt("answeredCount", 0);
+
+            answered = savedInstanceState.getBooleanArray(KEY_ANSWERED);
+
+            if(answered == null){
+                answered = new boolean[questionBank.length];
+            }
+        }else{
+            answered = new boolean[questionBank.length];
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -74,26 +85,25 @@ public class MainActivity extends AppCompatActivity {
 
         updateQuestion();
 
-        if (answered[currentIndex]) {
-            true_button.setEnabled(false);
-            false_button.setEnabled(false);
-        }
-
         next_button = findViewById(R.id.next_button);
-        next_button.setOnClickListener(v -> {
-            if(currentIndex == questionBank.length - 1){
-                Toast.makeText(
-                        this,
-                        "Final Score: " + score + "/" + questionBank.length,
-                        Toast.LENGTH_LONG
-                ).show();
+        prev_button = findViewById(R.id.prev_button);
 
-                score = 0; // reset
-            }
+        next_button.setOnClickListener(v -> {
             currentIndex = (currentIndex + 1) % questionBank.length;
 
             true_button.setEnabled(true);
             false_button.setEnabled(true);
+
+            updateQuestion();
+            updateScore();
+        });
+
+        prev_button.setOnClickListener(v -> {
+            if (currentIndex > 0){
+                currentIndex--;
+            }else{
+                currentIndex = questionBank.length - 1;
+            }
 
             updateQuestion();
             updateScore();
