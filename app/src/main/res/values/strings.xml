@@ -6,10 +6,14 @@
     <string name="question_mideast">The Middle East is in South Africa.</string>
     <string name="question_africa">Africa has the most countries.</string>
 
-    <string name= "true_button">True</string>
-    <string name= "false_button">False</string>
+    <string name="true_button">True</string>
+    <string name="false_button">False</string>
+    <string name="show_answer">Show Answer</string>
 
-    <string name= "correct_toast">Correct!</string>
-    <string name= "incorrect_toast">Incorrect!</string>
+    <string name="correct_toast">Correct!</string>
+    <string name="incorrect_toast">Incorrect!</string>
+
+    <string name="judgment_toast">Cheating is wrong!</string>
+
 
 </resources>

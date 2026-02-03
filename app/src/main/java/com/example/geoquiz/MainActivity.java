@@ -6,6 +6,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import android.content.Intent;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +44,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_INDEX = "currentQuestionIndex";
     private static final String KEY_ANSWERED = "answered";
 
+    private final ActivityResultLauncher<Intent> cheatLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            isCheater = result.getData()
+                                    .getBooleanExtra("com.example.geoquiz.answer_shown", false);
+                        }
+                    }
+            );
+
     private int score = 0;
 
     private static final String KEY_SCORE = "score";
@@ -49,8 +63,9 @@ public class MainActivity extends AppCompatActivity {
     //for logs
     private static final String TAG = "MainActivity";
 
+    private Button cheat_button;
 
-
+    private boolean isCheater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         next_button.setOnClickListener(v -> {
             currentIndex = (currentIndex + 1) % questionBank.length;
 
+            isCheater = false;
+
             true_button.setEnabled(true);
             false_button.setEnabled(true);
 
@@ -111,12 +128,22 @@ public class MainActivity extends AppCompatActivity {
                 currentIndex = questionBank.length - 1;
             }
 
+            isCheater = false;
+
             updateQuestion();
             updateScore();
         });
 
         score_text_view = findViewById(R.id.score_text_view);
         updateScore();
+
+        cheat_button = findViewById(R.id.cheat_button);
+        cheat_button.setOnClickListener(v -> {
+            Intent intent = new Intent (MainActivity.this, CheatActivity.class);
+            intent.putExtra(CheatActivity.EXTRA_ANSWER_IS_TRUE,
+                    questionBank[currentIndex].isAnswerTrue());
+            cheatLauncher.launch(intent);
+        });
 
     }
     @Override
@@ -180,26 +207,32 @@ public class MainActivity extends AppCompatActivity {
         boolean correctAnswer =
                 questionBank[currentIndex].isAnswerTrue();
 
-        if(userAnswer == correctAnswer){
+        int messageResId;
+
+        if (isCheater) {
+            messageResId = R.string.judgment_toast;
+        } else if (userAnswer == correctAnswer) {
+            messageResId = R.string.correct_toast;
             score++;
-            Toast.makeText(this, R.string.correct_toast, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, R.string.incorrect_toast, Toast.LENGTH_SHORT).show();
+            messageResId = R.string.incorrect_toast;
         }
+
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
 
         answered[currentIndex] = true;
         answeredCount++;
 
-        //disable buttons after answering.
         true_button.setEnabled(false);
         false_button.setEnabled(false);
 
         updateScore();
 
-        if(answeredCount == questionBank.length){
+        if (answeredCount == questionBank.length) {
             showFinalScore();
         }
     }
+
 
     private void updateScore(){
         score_text_view.setText(
