@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean [] answered;
     private int answeredCount;
 
-
+    private boolean[] cheated;
 
     //+++++++++++++++++++++++++++++++++++++++++++++
 
@@ -49,8 +49,10 @@ public class MainActivity extends AppCompatActivity {
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            isCheater = result.getData()
-                                    .getBooleanExtra("com.example.geoquiz.answer_shown", false);
+                            boolean didCheat = result.getData()
+                                    .getBooleanExtra("com.example.geoquiz.answer_shown",false);
+
+                            cheated[currentIndex] = didCheat;
                         }
                     }
             );
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button cheat_button;
 
-    private boolean isCheater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,12 +80,14 @@ public class MainActivity extends AppCompatActivity {
             answeredCount = savedInstanceState.getInt("answeredCount", 0);
 
             answered = savedInstanceState.getBooleanArray(KEY_ANSWERED);
+            cheated = savedInstanceState.getBooleanArray("cheated");
 
             if(answered == null){
                 answered = new boolean[questionBank.length];
             }
         }else{
             answered = new boolean[questionBank.length];
+            cheated = new boolean[questionBank.length];
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -112,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         next_button.setOnClickListener(v -> {
             currentIndex = (currentIndex + 1) % questionBank.length;
 
-            isCheater = false;
 
             true_button.setEnabled(true);
             false_button.setEnabled(true);
@@ -127,8 +129,6 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 currentIndex = questionBank.length - 1;
             }
-
-            isCheater = false;
 
             updateQuestion();
             updateScore();
@@ -190,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
         outState.putBooleanArray(KEY_ANSWERED, answered);
         outState.putInt("answeredCount", answeredCount);
         outState.putInt(KEY_SCORE, score);
+        outState.putBooleanArray("cheated", cheated);
+
     }
 
     private void updateQuestion(){
@@ -198,6 +200,9 @@ public class MainActivity extends AppCompatActivity {
         
         true_button.setEnabled(!answered[currentIndex]);
         false_button.setEnabled(!answered[currentIndex]);
+
+        cheat_button.setEnabled(!answered[currentIndex]);
+
     }
 
     private void checkAnswer(boolean userAnswer) {
@@ -209,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
         int messageResId;
 
-        if (isCheater) {
+        if (cheated[currentIndex]) {
             messageResId = R.string.judgment_toast;
         } else if (userAnswer == correctAnswer) {
             messageResId = R.string.correct_toast;
@@ -225,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         true_button.setEnabled(false);
         false_button.setEnabled(false);
+        cheat_button.setEnabled(false);
 
         updateScore();
 
