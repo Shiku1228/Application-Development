@@ -4,7 +4,17 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/black">
+
+    <TextView
+        android:id="@+id/question_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to do this?"
+        android:textSize="14sp"
+        android:visibility="visible"
+        android:layout_marginBottom="16dp"/>
 
     <TextView
         android:id="@+id/answer_text_view"
@@ -19,6 +29,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show Answer"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>
